@@ -2,6 +2,7 @@
 #include "chunk.h"
 #include "colors.h"
 #include "player.h"
+#include "world.h"
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,11 +64,9 @@ int main(int argc, char* argv[]) {
 
     init_color_pairs();
 
-    Chunk* chunk1 = create_chunk();
-    chunk1->tiles[0][0] = 'B';
-    chunk1->color_pair[0][0] = C_WHITE_BLACK;
-
     Player* player = create_player();
+
+    World* world = create_world(1, 1);
 
     
     keypad(topw, TRUE);
@@ -75,7 +74,7 @@ int main(int argc, char* argv[]) {
     while( (char)c != 'q' ) {
         wclear(topw);
         acs_box(topw);
-        draw_chunk(chunk1, topw, 1, 1);
+        draw_chunk(world->chunks[0][0], topw, 1, 1);
         draw_player(player, topw, player->y, player->x);
         c = wgetch(topw);
         if( c == KEY_LEFT ) {

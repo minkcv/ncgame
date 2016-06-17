@@ -3,11 +3,12 @@
 
 #include <ncurses.h>
 
-#define CHUNK_SIZE 8
+#define CHUNK_WIDTH 78
+#define CHUNK_HEIGHT 18
 
 typedef struct Chunk {
-    char tiles[CHUNK_SIZE][CHUNK_SIZE];
-    short color_pair[CHUNK_SIZE][CHUNK_SIZE];
+    char tiles[CHUNK_HEIGHT][CHUNK_WIDTH];
+    short color_pair[CHUNK_HEIGHT][CHUNK_WIDTH];
 } Chunk ;
 
 Chunk* create_chunk();
