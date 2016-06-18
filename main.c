@@ -6,6 +6,7 @@
 #include "tiles.h"
 #include <locale.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
@@ -64,6 +65,7 @@ int main(int argc, char* argv[]) {
     acs_box(topw);
     wclear(botw);
     acs_box(botw);
+    mvwprintw(botw, 1, 1, " c: change color e: change character");
 
     init_color_pairs();
 
@@ -82,7 +84,43 @@ int main(int argc, char* argv[]) {
         draw_chunk(world->chunks[player->chunk_y][player->chunk_x], topw, 1, 1);
         draw_player(player, topw, player->y, player->x);
         c = wgetch(topw);
-        if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
+        wclear(botw);
+        acs_box(botw);
+        mvwprintw(botw, 1, 1, " c: change color e: change character");
+        wrefresh(botw);
+        if( c == 'e' ) {
+            wclear(botw);
+            acs_box(botw);
+            mvwprintw(botw, 1, 1, " input a character");
+            wrefresh(botw);
+            int newtile = wgetch(topw);
+            if( isprint( newtile )) {
+                world->chunks[player->chunk_y][player->chunk_x]->tiles[player->y][player->x] = newtile;
+            }
+            else {
+                wclear(botw);
+                acs_box(botw);
+                mvwprintw(botw, 1, 1, " not a printable character");
+                wrefresh(botw);
+            }
+        }
+        else if( c == 'c' ) {
+            wclear(botw);
+            acs_box(botw);
+            mvwprintw(botw, 1, 1, " input a number between 1 and the number of defined colors");
+            wrefresh(botw);
+            int newcolor = wgetch(topw) - '0';
+            if( newcolor > 0 && newcolor <= NUM_COLOR_PAIRS ) {
+                world->chunks[player->chunk_y][player->chunk_x]->color_pair[player->y][player->x] = newcolor;
+            }
+            else {
+                wclear(botw);
+                acs_box(botw);
+                mvwprintw(botw, 1, 1, " not a number between 1 and the number of defined colors");
+                wrefresh(botw);
+            }
+        }
+        else if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
             move_player(player, world, world->chunks[player->chunk_y][player->chunk_x], c);
         }
         wrefresh(topw);
@@ -91,6 +129,7 @@ int main(int argc, char* argv[]) {
     }
     
     delwin(topw);
+    delwin(botw);
     endwin();
 
     return 0;
