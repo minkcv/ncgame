@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
     int term_width = 0;
     int term_height = 0;
     int botw_height = 4;
+    bool redraw_botw = TRUE;
     WINDOW* topw;
     WINDOW* botw;
     init_ncurses();
@@ -79,15 +80,19 @@ int main(int argc, char* argv[]) {
     keypad(topw, TRUE);
     int c = wgetch(topw);   
     while( (char)c != 'q' ) {
-        wclear(topw);
-        acs_box(topw);
+        //wclear(topw);
+        //acs_box(topw);
         draw_chunk(world->chunks[player->chunk_y][player->chunk_x], topw, 1, 1);
         draw_player(player, topw, player->y, player->x);
         c = wgetch(topw);
-        wclear(botw);
-        acs_box(botw);
-        mvwprintw(botw, 1, 1, " c: change color e: change character");
-        wrefresh(botw);
+        if(redraw_botw) {
+            wclear(botw);
+            acs_box(botw);
+            mvwprintw(botw, 1, 1, " c: change color e: change character");
+            wrefresh(botw);
+            redraw_botw = FALSE;
+        }
+
         if( c == 'e' ) {
             wclear(botw);
             acs_box(botw);
@@ -103,6 +108,7 @@ int main(int argc, char* argv[]) {
                 mvwprintw(botw, 1, 1, " not a printable character");
                 wrefresh(botw);
             }
+            redraw_botw = TRUE;
         }
         else if( c == 'c' ) {
             wclear(botw);
@@ -119,6 +125,7 @@ int main(int argc, char* argv[]) {
                 mvwprintw(botw, 1, 1, " not a number between 1 and the number of defined colors");
                 wrefresh(botw);
             }
+            redraw_botw = TRUE;
         }
         else if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
             move_player(player, world, world->chunks[player->chunk_y][player->chunk_x], c);
