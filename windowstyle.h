@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 
+
 void acs_box(WINDOW* win);
 
 #endif
