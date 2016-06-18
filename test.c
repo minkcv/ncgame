@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
     while( (char)c != 'q' ) {
         wclear(topw);
         acs_box(topw);
-        draw_chunk(world->chunks[0][0], topw, 1, 1);
+        draw_chunk(world->chunks[player->chunk_y][player->chunk_x], topw, 1, 1);
         draw_player(player, topw, player->y, player->x);
         c = wgetch(topw);
         if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
