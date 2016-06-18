@@ -7,8 +7,8 @@ Chunk* create_chunk() {
     int i, j;
     for(i = 0; i < CHUNK_HEIGHT; i++) {
         for(j = 0; j < CHUNK_WIDTH; j++) {
-            chk->tiles[i][j] = '.';
-            chk->color_pair[i][j] = 1;
+            chk->tiles[i][j] = '~';
+            chk->color_pair[i][j] = 3;
             chk->redraw_tile[i][j] = TRUE;
         }
     }

@@ -55,18 +55,18 @@ int main(int argc, char* argv[]) {
         sprintf(err, "Your terminal supports less than %d color pairs", DESIRED_COLOR_PAIRS);
         quit_error(err);
     }
-    printf("%d\n", COLOR_PAIRS);
 
     refresh();
     topw = newwin(TOP_WINDOW_HEIGHT, TOP_WINDOW_WIDTH, 0, 0);
     botw = newwin(botw_height, width, 20, 0);
-    wrefresh(topw);
-    wrefresh(botw);
     wclear(topw);
     acs_box(topw);
+    wrefresh(topw);
+
     wclear(botw);
     acs_box(botw);
-    mvwprintw(botw, 1, 1, " c: change color e: change character");
+    mvwprintw(botw, 1, 1, " tab: change play/edit mode");
+    wrefresh(botw);
 
     init_color_pairs();
 
@@ -76,58 +76,85 @@ int main(int argc, char* argv[]) {
 
     world->chunks[0][0]->tiles[5][5] = TILE_WALL;
 
+    game_mode = MODE_PLAY;
     
     keypad(topw, TRUE);
     int c = wgetch(topw);   
     while( (char)c != 'q' ) {
-        //wclear(topw);
-        //acs_box(topw);
         draw_chunk(world->chunks[player->chunk_y][player->chunk_x], topw, 1, 1);
         draw_player(player, topw, player->y, player->x);
         c = wgetch(topw);
         if(redraw_botw) {
             wclear(botw);
             acs_box(botw);
-            mvwprintw(botw, 1, 1, " c: change color e: change character");
             wrefresh(botw);
             redraw_botw = FALSE;
         }
 
-        if( c == 'e' ) {
+        if( c == '\t' ) {
+            if( game_mode == MODE_PLAY ) {
+                game_mode = MODE_EDIT;
+            }
+            else if( game_mode == MODE_EDIT ) {
+                game_mode = MODE_PLAY;
+            }
+        }
+
+        if( game_mode == MODE_EDIT ) {
             wclear(botw);
             acs_box(botw);
-            mvwprintw(botw, 1, 1, " input a character");
+            mvwprintw(botw, 1, 1, " c: change color e: change character");
             wrefresh(botw);
-            int newtile = wgetch(topw);
-            if( isprint( newtile )) {
-                world->chunks[player->chunk_y][player->chunk_x]->tiles[player->y][player->x] = newtile;
-            }
-            else {
+            redraw_botw = TRUE;
+            if( c == 'e' ) {
                 wclear(botw);
                 acs_box(botw);
-                mvwprintw(botw, 1, 1, " not a printable character");
+                mvwprintw(botw, 1, 1, " input a character");
                 wrefresh(botw);
+                int newtile = wgetch(topw);
+                if( isprint( newtile )) {
+                    world->chunks[player->chunk_y][player->chunk_x]->tiles[player->y][player->x] = newtile;
+                    wclear(botw);
+                    acs_box(botw);
+                    wrefresh(botw);
+                }
+                else {
+                    wclear(botw);
+                    acs_box(botw);
+                    mvwprintw(botw, 1, 1, " not a printable character");
+                    wrefresh(botw);
+                }
+                redraw_botw = TRUE;
             }
-            redraw_botw = TRUE;
+            else if( c == 'c' ) {
+                wclear(botw);
+                acs_box(botw);
+                mvwprintw(botw, 1, 1, " input a number between 1 and the number of defined colors");
+                wrefresh(botw);
+                int newcolor = wgetch(topw) - '0';
+                if( newcolor > 0 && newcolor <= NUM_COLOR_PAIRS ) {
+                    world->chunks[player->chunk_y][player->chunk_x]->color_pair[player->y][player->x] = newcolor;
+                    wclear(botw);
+                    acs_box(botw);
+                    wrefresh(botw);
+                }
+                else {
+                    wclear(botw);
+                    acs_box(botw);
+                    mvwprintw(botw, 1, 1, " not a number between 1 and the number of defined colors");
+                    wrefresh(botw);
+                }
+                redraw_botw = TRUE;
+            }
         }
-        else if( c == 'c' ) {
+        else {
             wclear(botw);
             acs_box(botw);
-            mvwprintw(botw, 1, 1, " input a number between 1 and the number of defined colors");
+            mvwprintw(botw, 1, 1, " tab: change play/edit mode");
             wrefresh(botw);
-            int newcolor = wgetch(topw) - '0';
-            if( newcolor > 0 && newcolor <= NUM_COLOR_PAIRS ) {
-                world->chunks[player->chunk_y][player->chunk_x]->color_pair[player->y][player->x] = newcolor;
-            }
-            else {
-                wclear(botw);
-                acs_box(botw);
-                mvwprintw(botw, 1, 1, " not a number between 1 and the number of defined colors");
-                wrefresh(botw);
-            }
-            redraw_botw = TRUE;
         }
-        else if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
+
+        if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
             move_player(player, world, world->chunks[player->chunk_y][player->chunk_x], c);
         }
         wrefresh(topw);

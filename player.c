@@ -14,14 +14,19 @@ Player* create_player() {
 }
 
 bool can_move(char tile) {
-   switch(tile) {
-       case TILE_WATER :
-       case TILE_WALL :
-           return FALSE;
-           break;
-       default:
-           return TRUE;
-   }
+    if(game_mode == MODE_MENU)
+        return FALSE;
+    else if(game_mode == MODE_EDIT)
+        return TRUE;
+
+    switch(tile) {
+        case TILE_WATER :
+        case TILE_WALL :
+            return FALSE;
+            break;
+        default:
+            return TRUE;
+    }
 }
 
 void draw_player(Player* player, WINDOW* window, int y, int x) {
