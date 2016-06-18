@@ -9,9 +9,11 @@
 typedef struct Chunk {
     char tiles[CHUNK_HEIGHT][CHUNK_WIDTH];
     short color_pair[CHUNK_HEIGHT][CHUNK_WIDTH];
+    bool redraw_tile[CHUNK_HEIGHT][CHUNK_WIDTH];
 } Chunk ;
 
 Chunk* create_chunk();
+void reset_redraw(Chunk* chk);
 void draw_chunk(Chunk* chk, WINDOW* window, int y, int x);
 
 #endif
