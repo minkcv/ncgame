@@ -4,6 +4,7 @@
 #include "player.h"
 #include "world.h"
 #include "tiles.h"
+#include "util.h"
 #include <locale.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -21,12 +22,6 @@ void init_ncurses() {
     noecho();
     raw();
     curs_set(FALSE);
-}
-
-void quit_error(char* err) {
-    endwin();
-    printf("%s\n", err);
-    exit(1);
 }
 
 int main(int argc, char* argv[]) {

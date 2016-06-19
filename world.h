@@ -11,4 +11,8 @@ typedef struct World {
 
 World* create_world(int height, int width);
 
+World* load_world(char* worldname);
+
+void save_world(World* world, char* worldname);
+
 #endif
