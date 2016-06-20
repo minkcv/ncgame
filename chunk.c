@@ -1,18 +1,17 @@
 #include "chunk.h"
+#include "colors.h"
 #include <string.h>
 #include <stdlib.h>
 
-Chunk* create_chunk() {
-    Chunk* chk = malloc(sizeof(Chunk));
+void init_chunk(Chunk* chk) {
     int i, j;
     for(i = 0; i < CHUNK_HEIGHT; i++) {
         for(j = 0; j < CHUNK_WIDTH; j++) {
             chk->tiles[i][j] = '~';
-            chk->color_pair[i][j] = 3;
+            chk->color_pair[i][j] = C_BLUE_BLACK;
             chk->redraw_tile[i][j] = TRUE;
         }
     }
-    return chk;
 }
 
 void reset_redraw(Chunk* chk) {

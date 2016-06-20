@@ -1,10 +1,10 @@
-#include "windowstyle.h"
 #include "chunk.h"
 #include "colors.h"
 #include "player.h"
 #include "world.h"
 #include "tiles.h"
 #include "util.h"
+#include "console.h"
 #include <locale.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -32,7 +32,6 @@ int main(int argc, char* argv[]) {
     int term_width = 0;
     int term_height = 0;
     int botw_height = 4;
-    bool redraw_botw = TRUE;
     WINDOW* topw;
     WINDOW* botw;
     init_ncurses();
@@ -58,10 +57,7 @@ int main(int argc, char* argv[]) {
     acs_box(topw);
     wrefresh(topw);
 
-    wclear(botw);
-    acs_box(botw);
-    mvwprintw(botw, 1, 1, " tab: change play/edit mode");
-    wrefresh(botw);
+    console_print(botw, 1, 1, " tab: change play/edit mode");
 
     init_color_pairs();
 
@@ -69,22 +65,16 @@ int main(int argc, char* argv[]) {
 
     World* world = create_world(2, 2);
 
-    world->chunks[0][0]->tiles[5][5] = TILE_WALL;
+    world->chunks[0][0].tiles[5][5] = TILE_WALL;
 
     game_mode = MODE_PLAY;
     
     keypad(topw, TRUE);
-    int c = wgetch(topw);   
+    int c = 0;
     while( (char)c != 'q' ) {
-        draw_chunk(world->chunks[player->chunk_y][player->chunk_x], topw, 1, 1);
+        draw_chunk(&(world->chunks[player->chunk_y][player->chunk_x]), topw, 1, 1);
         draw_player(player, topw, player->y, player->x);
         c = wgetch(topw);
-        if(redraw_botw) {
-            wclear(botw);
-            acs_box(botw);
-            wrefresh(botw);
-            redraw_botw = FALSE;
-        }
 
         if( c == '\t' ) {
             if( game_mode == MODE_PLAY ) {
@@ -96,61 +86,80 @@ int main(int argc, char* argv[]) {
         }
 
         if( game_mode == MODE_EDIT ) {
-            wclear(botw);
-            acs_box(botw);
-            mvwprintw(botw, 1, 1, " c: change color e: change character");
-            wrefresh(botw);
-            redraw_botw = TRUE;
+            console_print(botw, 1, 1, " c: change color e: change character s: save world l: load world");
             if( c == 'e' ) {
-                wclear(botw);
-                acs_box(botw);
-                mvwprintw(botw, 1, 1, " input a character");
-                wrefresh(botw);
+                console_print(botw, 1, 1, " input a character");
                 int newtile = wgetch(topw);
                 if( isprint( newtile )) {
-                    world->chunks[player->chunk_y][player->chunk_x]->tiles[player->y][player->x] = newtile;
-                    wclear(botw);
-                    acs_box(botw);
+                    world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x] = newtile;
                     wrefresh(botw);
                 }
                 else {
-                    wclear(botw);
-                    acs_box(botw);
-                    mvwprintw(botw, 1, 1, " not a printable character");
-                    wrefresh(botw);
+                    console_print(botw, 1, 1, " not a printable character");
                 }
-                redraw_botw = TRUE;
             }
             else if( c == 'c' ) {
-                wclear(botw);
-                acs_box(botw);
-                mvwprintw(botw, 1, 1, " input a number between 1 and the number of defined colors");
-                wrefresh(botw);
+                console_print(botw, 1, 1, " input a number between 1 and the number of defined colors");
                 int newcolor = wgetch(topw) - '0';
                 if( newcolor > 0 && newcolor <= NUM_COLOR_PAIRS ) {
-                    world->chunks[player->chunk_y][player->chunk_x]->color_pair[player->y][player->x] = newcolor;
-                    wclear(botw);
-                    acs_box(botw);
-                    wrefresh(botw);
+                    world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x] = newcolor;
+                    console_clear(botw);
                 }
                 else {
-                    wclear(botw);
-                    acs_box(botw);
-                    mvwprintw(botw, 1, 1, " not a number between 1 and the number of defined colors");
-                    wrefresh(botw);
+                    console_print(botw, 1, 1, " not a number between 1 and the number of defined colors");
                 }
-                redraw_botw = TRUE;
+            }
+            else if( c == 's') {
+                console_print(botw, 1, 1, " input a name for the world file and press enter");
+                char name[20];
+                int pos = 0;
+                c = wgetch(botw);
+                while( c != KEY_ENTER  && c != 10) { // 10 is another enter signal (control m)
+                    if((c == KEY_BACKSPACE || c == 263) && pos > 0) {
+                        name[pos] = ' ';
+                        pos--;
+                    }
+                    else if(isprint(c)) {
+                        name[pos] = (char)c;
+                        if(pos < 20) {
+                            pos++;
+                        }
+                    }
+                    console_print(botw, 2, 1, name);
+                    c = wgetch(botw);
+                }
+                save_world(world, name);
+                console_print(botw, 1, 1, " saved world");
+            }
+            else if( c == 'l') {
+                console_print(botw, 1, 1, " input a name for the world file and press enter");
+                char name[20];
+                int pos = 0;
+                c = wgetch(botw);
+                while( c != KEY_ENTER  && c != 10) { // 10 is another enter signal (control m)
+                    if((c == KEY_BACKSPACE || c == 263) && pos > 0) {
+                        name[pos] = ' ';
+                        pos--;
+                    }
+                    else if(isprint(c)) {
+                        name[pos] = (char)c;
+                        if(pos < 20) {
+                            pos++;
+                        }
+                    }
+                    console_print(botw, 2, 1, name);
+                    c = wgetch(botw);
+                }
+                world = load_world(name);
+                console_print(botw, 1, 1, " loaded world");
             }
         }
         else {
-            wclear(botw);
-            acs_box(botw);
-            mvwprintw(botw, 1, 1, " tab: change play/edit mode");
-            wrefresh(botw);
+            console_print(botw, 1, 1, " tab: change play/edit mode");
         }
 
         if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
-            move_player(player, world, world->chunks[player->chunk_y][player->chunk_x], c);
+            move_player(player, world, &(world->chunks[player->chunk_y][player->chunk_x]), c);
         }
         wrefresh(topw);
         wrefresh(botw);

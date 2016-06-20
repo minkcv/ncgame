@@ -12,7 +12,7 @@ typedef struct Chunk {
     bool redraw_tile[CHUNK_HEIGHT][CHUNK_WIDTH];
 } Chunk ;
 
-Chunk* create_chunk();
+void init_chunk(Chunk* chk);
 void reset_redraw(Chunk* chk);
 void draw_chunk(Chunk* chk, WINDOW* window, int y, int x);
 

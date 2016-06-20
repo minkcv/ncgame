@@ -8,12 +8,10 @@ World* create_world(int height, int width) {
     World* w = malloc(sizeof(World));
     w->height = height;
     w->width = width;
-    w->chunks = malloc(sizeof(Chunk*) * height);
     int i, j;
     for(i = 0; i < height; i++) {
-        w->chunks[i] = malloc(sizeof(Chunk) * width);
         for(j = 0; j < width; j++) {
-            w->chunks[i][j] = create_chunk();
+            init_chunk(&(w->chunks[i][j]));
         }
     }
     return w;
@@ -21,30 +19,36 @@ World* create_world(int height, int width) {
 
 World* load_world(char* worldname) {
     char fullpath[20];
-    strcpy(fullpath, "world/");
+    strcpy(fullpath, "worlds/");
     strcat(fullpath, worldname);
     FILE* worldfile = fopen(fullpath, "r+");
-    World* world;
+    World* world = malloc(sizeof(World));
     int success_count = fread(world, sizeof(World), 1, worldfile);
     if(success_count != 1) {
         quit_error("failed to read world\n");
     }
     fclose(worldfile);
+    int i, j;
+    for(i = 0; i < world->height; i++) {
+        for(j = 0; j < world->width; j++) {
+            reset_redraw(&(world->chunks[i][j]));
+        }
+    }
     return world;
 }
 
 void save_world(World* world, char* worldname) {
     char fullpath[20];
-    strcpy(fullpath, "world/");
+    strcpy(fullpath, "worlds/");
     strcat(fullpath, worldname);
     FILE* worldfile = fopen(fullpath, "w");
-    int success_count = fwrite(world, sizeof(world), 1, worldfile);
+    int success_count = fwrite(world, sizeof(World), 1, worldfile);
     if(success_count != 1) {
-        quit_error("failed to save world\n");
+        quit_error("failed to save world");
     }
     int success_flush = fflush(worldfile);
     if(success_flush == -1) {
-        quit_error("filed to flush world");
+        quit_error("failed to flush world");
     }
     fclose(worldfile);
 }
