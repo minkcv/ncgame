@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
     int term_width = 0;
     int term_height = 0;
     int botw_height = 4;
+    bool redraw_edit_help = TRUE;
     WINDOW* topw;
     WINDOW* botw;
     init_ncurses();
@@ -50,12 +51,10 @@ int main(int argc, char* argv[]) {
         quit_error(err);
     }
 
-    refresh();
     topw = newwin(TOP_WINDOW_HEIGHT, TOP_WINDOW_WIDTH, 0, 0);
     botw = newwin(botw_height, width, 20, 0);
     wclear(topw);
     acs_box(topw);
-    wrefresh(topw);
 
     console_print(botw, 1, 1, " tab: change play/edit mode");
 
@@ -86,17 +85,20 @@ int main(int argc, char* argv[]) {
         }
 
         if( game_mode == MODE_EDIT ) {
-            console_print(botw, 1, 1, " c: change color e: change character s: save world l: load world");
+            if( redraw_edit_help ) {
+                console_print(botw, 1, 1, " c: change color e: change character s: save world l: load world");
+                redraw_edit_help = FALSE;
+            }
             if( c == 'e' ) {
                 console_print(botw, 1, 1, " input a character");
                 int newtile = wgetch(topw);
                 if( isprint( newtile )) {
                     world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x] = newtile;
-                    wrefresh(botw);
                 }
                 else {
                     console_print(botw, 1, 1, " not a printable character");
                 }
+                redraw_edit_help = TRUE;
             }
             else if( c == 'c' ) {
                 console_print(botw, 1, 1, " input a number between 1 and the number of defined colors");
@@ -108,6 +110,7 @@ int main(int argc, char* argv[]) {
                 else {
                     console_print(botw, 1, 1, " not a number between 1 and the number of defined colors");
                 }
+                redraw_edit_help = TRUE;
             }
             else if( c == 's') {
                 console_print(botw, 1, 1, " input a name for the world file and press enter");
@@ -130,6 +133,7 @@ int main(int argc, char* argv[]) {
                 }
                 save_world(world, name);
                 console_print(botw, 1, 1, " saved world");
+                redraw_edit_help = TRUE;
             }
             else if( c == 'l') {
                 console_print(botw, 1, 1, " input a name for the world file and press enter");
@@ -152,6 +156,7 @@ int main(int argc, char* argv[]) {
                 }
                 world = load_world(name);
                 console_print(botw, 1, 1, " loaded world");
+                redraw_edit_help = TRUE;
             }
         }
         else {
@@ -161,9 +166,6 @@ int main(int argc, char* argv[]) {
         if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
             move_player(player, world, &(world->chunks[player->chunk_y][player->chunk_x]), c);
         }
-        wrefresh(topw);
-        wrefresh(botw);
-        refresh();
     }
     
     delwin(topw);
