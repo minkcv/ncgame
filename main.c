@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
     int term_height = 0;
     int botw_height = 4;
     bool redraw_edit_help = TRUE;
+    char load_save_name[20];
     WINDOW* topw;
     WINDOW* botw;
     init_ncurses();
@@ -56,7 +57,7 @@ int main(int argc, char* argv[]) {
     wclear(topw);
     acs_box(topw);
 
-    console_print(botw, 1, 1, " tab: change play/edit mode");
+    console_print(botw, 1, 1, " tab: change play/edit mode q: quit");
 
     init_color_pairs();
 
@@ -64,10 +65,8 @@ int main(int argc, char* argv[]) {
 
     World* world = create_world(2, 2);
 
-    world->chunks[0][0].tiles[5][5] = TILE_WALL;
-
     game_mode = MODE_PLAY;
-    
+
     keypad(topw, TRUE);
     int c = 0;
     while( (char)c != 'q' ) {
@@ -82,6 +81,7 @@ int main(int argc, char* argv[]) {
             else if( game_mode == MODE_EDIT ) {
                 game_mode = MODE_PLAY;
             }
+            redraw_edit_help = TRUE;
         }
 
         if( game_mode == MODE_EDIT ) {
@@ -114,53 +114,56 @@ int main(int argc, char* argv[]) {
             }
             else if( c == 's') {
                 console_print(botw, 1, 1, " input a name for the world file and press enter");
-                char name[20];
+                memset(load_save_name, 0, strlen(load_save_name));
                 int pos = 0;
                 c = wgetch(botw);
                 while( c != KEY_ENTER  && c != 10) { // 10 is another enter signal (control m)
                     if((c == KEY_BACKSPACE || c == 263) && pos > 0) {
-                        name[pos] = ' ';
+                        load_save_name[pos] = ' ';
                         pos--;
                     }
                     else if(isprint(c)) {
-                        name[pos] = (char)c;
+                        load_save_name[pos] = (char)c;
                         if(pos < 20) {
                             pos++;
                         }
                     }
-                    console_print(botw, 2, 1, name);
+                    console_print(botw, 2, 1, load_save_name);
                     c = wgetch(botw);
                 }
-                save_world(world, name);
+                save_world(world, load_save_name);
                 console_print(botw, 1, 1, " saved world");
                 redraw_edit_help = TRUE;
             }
             else if( c == 'l') {
                 console_print(botw, 1, 1, " input a name for the world file and press enter");
-                char name[20];
+                memset(load_save_name, 0, strlen(load_save_name));
                 int pos = 0;
                 c = wgetch(botw);
                 while( c != KEY_ENTER  && c != 10) { // 10 is another enter signal (control m)
                     if((c == KEY_BACKSPACE || c == 263) && pos > 0) {
-                        name[pos] = ' ';
+                        load_save_name[pos] = ' ';
                         pos--;
                     }
                     else if(isprint(c)) {
-                        name[pos] = (char)c;
+                        load_save_name[pos] = (char)c;
                         if(pos < 20) {
                             pos++;
                         }
                     }
-                    console_print(botw, 2, 1, name);
+                    console_print(botw, 2, 1, load_save_name);
                     c = wgetch(botw);
                 }
-                world = load_world(name);
+                world = load_world(load_save_name);
                 console_print(botw, 1, 1, " loaded world");
                 redraw_edit_help = TRUE;
             }
         }
         else {
-            console_print(botw, 1, 1, " tab: change play/edit mode");
+            if( redraw_edit_help ) {
+                console_print(botw, 1, 1, " tab: change play/edit mode");
+                redraw_edit_help = FALSE;
+            }
         }
 
         if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
