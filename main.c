@@ -1,3 +1,4 @@
+#include "main.h"
 #include "chunk.h"
 #include "colors.h"
 #include "player.h"
@@ -55,15 +56,13 @@ int main(int argc, char* argv[]) {
         sprintf(err, "Your terminal supports less than %d color pairs", DESIRED_COLOR_PAIRS);
         quit_error(err);
     }
-
+    
     topw = newwin(TOP_WINDOW_HEIGHT, TOP_WINDOW_WIDTH, 0, 0);
     botw = newwin(botw_height, width, 20, 0);
+    
     wclear(topw);
     acs_box(topw);
-
-    console_clear(botw);
-    console_print(botw, 1, 1, " tab: change play/edit mode q: quit");
-
+    
     init_color_pairs();
 
     Player* player = create_player();
@@ -74,11 +73,7 @@ int main(int argc, char* argv[]) {
 
     keypad(topw, TRUE);
     int c = 0;
-    while( (char)c != 'q' ) {
-        draw_chunk(&(world->chunks[player->chunk_y][player->chunk_x]), topw, 1, 1);
-        draw_player(player, topw, player->y, player->x);
-        c = wgetch(topw);
-
+    while( c != 'q' ) {
         if( c == '\t' ) {
             if( game_mode == MODE_PLAY ) {
                 game_mode = MODE_EDIT;
@@ -192,15 +187,23 @@ int main(int argc, char* argv[]) {
                     console_print(botw, 2, 1, load_save_name);
                     c = wgetch(botw);
                 }
-                world = load_world(load_save_name);
-                console_clear(botw);
-                console_print(botw, 1, 1, " loaded world");
+                World* tmp = load_world(load_save_name);
+                if(tmp == NULL) {
+                    console_clear(botw);
+                    console_print(botw, 1, 1, " failed to load world");
+                }
+                else {
+                    world = tmp;
+                    console_clear(botw);
+                    console_print(botw, 1, 1, " loaded world");
+                }
                 redraw_edit_help = TRUE;
             }
         }
         else {
             if( redraw_edit_help ) {
-                console_print(botw, 1, 1, " tab: change play/edit mode");
+                console_clear(botw);
+                console_print(botw, 1, 1, " tab: change play/edit mode | q: quit");
                 redraw_edit_help = FALSE;
             }
         }
@@ -208,6 +211,11 @@ int main(int argc, char* argv[]) {
         if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
             move_player(player, world, &(world->chunks[player->chunk_y][player->chunk_x]), c);
         }
+
+        draw_chunk(&(world->chunks[player->chunk_y][player->chunk_x]), topw, 1, 1);
+        draw_player(player, topw, player->y, player->x);
+
+        c = wgetch(topw);
     }
     
     delwin(topw);

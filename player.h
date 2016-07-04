@@ -1,6 +1,7 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
+#include "main.h"
 #include "chunk.h"
 #include "world.h"
 #include <ncurses.h>
@@ -8,8 +9,6 @@
 #define MODE_MENU 0
 #define MODE_PLAY 1
 #define MODE_EDIT 2
-
-short game_mode;
 
 typedef struct Player {
     int x;
