@@ -2,8 +2,6 @@
 #include "util.h"
 
 void console_print(WINDOW* window, int y, int x, char* message) {
-    wclear(window);
-    acs_box(window);
     mvwprintw(window, y, x, message);
     wrefresh(window);
 }
