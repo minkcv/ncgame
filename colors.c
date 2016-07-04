@@ -7,4 +7,5 @@ void init_color_pairs() {
     init_pair(C_BLUE_BLACK, COLOR_BLUE, COLOR_BLACK);
     init_pair(C_BLACK_YELLOW, COLOR_BLACK, COLOR_YELLOW);
     init_pair(C_WHITE_BLUE, COLOR_WHITE, COLOR_BLUE);
+    init_pair(C_GREEN_BLACK, COLOR_GREEN, COLOR_BLACK);
 }
