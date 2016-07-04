@@ -22,8 +22,11 @@ World* load_world(char* worldname) {
     strcpy(fullpath, "worlds/");
     strcat(fullpath, worldname);
     FILE* worldfile = fopen(fullpath, "r+");
+    if(worldfile == NULL) {
+        return NULL;
+    }
     World* world = malloc(sizeof(World));
-    int success_count = fread(world, sizeof(World), 1, worldfile);
+    size_t  success_count = fread(world, sizeof(World), 1, worldfile);
     if(success_count != 1) {
         quit_error("failed to read world\n");
     }
