@@ -34,6 +34,10 @@ int main(int argc, char* argv[]) {
     int botw_height = 4;
     bool redraw_edit_help = TRUE;
     char load_save_name[20];
+    // for copy paste
+    int clipboard_tile = ' ';
+    int clipboard_color = 1;
+    bool leave_trail = FALSE;
     WINDOW* topw;
     WINDOW* botw;
     init_ncurses();
@@ -57,6 +61,7 @@ int main(int argc, char* argv[]) {
     wclear(topw);
     acs_box(topw);
 
+    console_clear(botw);
     console_print(botw, 1, 1, " tab: change play/edit mode q: quit");
 
     init_color_pairs();
@@ -86,10 +91,18 @@ int main(int argc, char* argv[]) {
 
         if( game_mode == MODE_EDIT ) {
             if( redraw_edit_help ) {
-                console_print(botw, 1, 1, " c: change color e: change character s: save world l: load world");
+                console_clear(botw);
+                console_print(botw, 1, 1, " c: change color | e: change character | s: save world | l: load world");
+                console_print(botw, 2, 1, " space: paste | y: copy | t: trail ");
                 redraw_edit_help = FALSE;
             }
+            // pasting while moving
+            if( leave_trail) {
+                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x] = clipboard_tile;
+                world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x] = clipboard_color;
+            }
             if( c == 'e' ) {
+                console_clear(botw);
                 console_print(botw, 1, 1, " input a character");
                 int newtile = wgetch(topw);
                 if( isprint( newtile )) {
@@ -101,6 +114,7 @@ int main(int argc, char* argv[]) {
                 redraw_edit_help = TRUE;
             }
             else if( c == 'c' ) {
+                console_clear(botw);
                 console_print(botw, 1, 1, " input a number between 1 and the number of defined colors");
                 int newcolor = wgetch(topw) - '0';
                 if( newcolor > 0 && newcolor <= NUM_COLOR_PAIRS ) {
@@ -108,11 +122,33 @@ int main(int argc, char* argv[]) {
                     console_clear(botw);
                 }
                 else {
+                    console_clear(botw);
                     console_print(botw, 1, 1, " not a number between 1 and the number of defined colors");
                 }
                 redraw_edit_help = TRUE;
             }
+            else if( c == ' ' ) {
+                // paste
+                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x] = clipboard_tile;
+                world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x] = clipboard_color;
+            }
+            else if( c == 'y' ) {
+                // copy tile and color
+                clipboard_tile = world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x];
+                clipboard_color = world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x];
+            }
+            else if( c == 't') {
+                leave_trail = ! leave_trail;
+                if(leave_trail) {
+                    console_clear(botw);
+                    console_print(botw, 1, 1, " leaving a trail of the clipboard");
+                }
+                else {
+                    redraw_edit_help = TRUE;
+                }
+            }
             else if( c == 's') {
+                console_clear(botw);
                 console_print(botw, 1, 1, " input a name for the world file and press enter");
                 memset(load_save_name, 0, strlen(load_save_name));
                 int pos = 0;
@@ -132,10 +168,12 @@ int main(int argc, char* argv[]) {
                     c = wgetch(botw);
                 }
                 save_world(world, load_save_name);
+                console_clear(botw);
                 console_print(botw, 1, 1, " saved world");
                 redraw_edit_help = TRUE;
             }
             else if( c == 'l') {
+                console_clear(botw);
                 console_print(botw, 1, 1, " input a name for the world file and press enter");
                 memset(load_save_name, 0, strlen(load_save_name));
                 int pos = 0;
@@ -155,6 +193,7 @@ int main(int argc, char* argv[]) {
                     c = wgetch(botw);
                 }
                 world = load_world(load_save_name);
+                console_clear(botw);
                 console_print(botw, 1, 1, " loaded world");
                 redraw_edit_help = TRUE;
             }
