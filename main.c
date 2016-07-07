@@ -93,15 +93,15 @@ int main(int argc, char* argv[]) {
             }
             // pasting while moving
             if( leave_trail) {
-                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x] = clipboard_tile;
-                world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x] = clipboard_color;
+                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].ch = clipboard_tile;
+                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].color = clipboard_color;
             }
             if( c == 'e' ) {
                 console_clear(botw);
                 console_print(botw, 1, 1, " input a character");
                 int newtile = wgetch(topw);
                 if( isprint( newtile )) {
-                    world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x] = newtile;
+                    world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].ch = newtile;
                 }
                 else {
                     console_print(botw, 1, 1, " not a printable character");
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
                 console_print(botw, 1, 1, " input a number between 1 and the number of defined colors");
                 int newcolor = wgetch(topw) - '0';
                 if( newcolor > 0 && newcolor <= NUM_COLOR_PAIRS ) {
-                    world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x] = newcolor;
+                    world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].color = newcolor;
                     console_clear(botw);
                 }
                 else {
@@ -124,13 +124,13 @@ int main(int argc, char* argv[]) {
             }
             else if( c == ' ' ) {
                 // paste
-                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x] = clipboard_tile;
-                world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x] = clipboard_color;
+                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].ch = clipboard_tile;
+                world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].color = clipboard_color;
             }
             else if( c == 'y' ) {
                 // copy tile and color
-                clipboard_tile = world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x];
-                clipboard_color = world->chunks[player->chunk_y][player->chunk_x].color_pair[player->y][player->x];
+                clipboard_tile = world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].ch;
+                clipboard_color = world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].color;
             }
             else if( c == 't') {
                 leave_trail = ! leave_trail;
