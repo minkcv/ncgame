@@ -1,4 +1,5 @@
 #include "player.h"
+#include "colors.h"
 #include "tiles.h"
 #include <stdlib.h>
 
@@ -9,7 +10,7 @@ Player* create_player() {
     p->chunk_x = 0;
     p->chunk_y = 0;
     p->character = '@';
-    p->color_pair = 2;
+    p->color_pair = C_WHITE_BLACK;
     return p;
 }
 
