@@ -1,3 +1,3 @@
 #A terminal game in C with ncurses
 
-![image][ncursesgame.png]
+![image][http://i.imgur.com/qP8Ha2u.png]
