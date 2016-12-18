@@ -37,7 +37,7 @@ void draw_player(Player* player, WINDOW* window, int y, int x) {
 }
 
 void move_player(Player* player, World* world, Chunk* chk, int key) {
-    if(key == KEY_LEFT) {
+    if(key == KEY_LEFT || key == 'h') {
         if(player->x > 0) {
             if(can_move(chk->tiles[player->y][player->x - 1].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;
@@ -50,7 +50,7 @@ void move_player(Player* player, World* world, Chunk* chk, int key) {
             player->x = CHUNK_WIDTH - 1;
         }
     }
-    else if (key == KEY_RIGHT) {
+    else if (key == KEY_RIGHT || key == 'l') {
         if(player->x < CHUNK_WIDTH - 1) {
             if(can_move(chk->tiles[player->y][player->x + 1].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;
@@ -63,7 +63,7 @@ void move_player(Player* player, World* world, Chunk* chk, int key) {
             player->x = 0;
         }
     }
-    else if (key == KEY_UP) {
+    else if (key == KEY_UP || key == 'k') {
         if(player->y > 0) {
             if(can_move(chk->tiles[player->y - 1][player->x].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;
@@ -76,7 +76,7 @@ void move_player(Player* player, World* world, Chunk* chk, int key) {
             player->y = CHUNK_HEIGHT - 1;
         }
     }
-    else if (key == KEY_DOWN) {
+    else if (key == KEY_DOWN || key == 'j') {
         if(player->y < CHUNK_HEIGHT - 1) {
             if(can_move(chk->tiles[player->y + 1][player->x].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;

@@ -87,8 +87,8 @@ int main(int argc, char* argv[]) {
         if( game_mode == MODE_EDIT ) {
             if( redraw_edit_help ) {
                 console_clear(botw);
-                console_print(botw, 1, 1, " c: change color | e: change character | s: save world | l: load world");
-                console_print(botw, 2, 1, " space: paste | y: copy | t: trail ");
+                console_print(botw, 1, 1, " c: Change color | e: Change character | s: Save world | o: Load world");
+                console_print(botw, 2, 1, " Space: paste | y: copy | t: Trail | q: Quit");
                 redraw_edit_help = FALSE;
             }
             // pasting while moving
@@ -104,13 +104,14 @@ int main(int argc, char* argv[]) {
                     world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].ch = newtile;
                 }
                 else {
-                    console_print(botw, 1, 1, " not a printable character");
+                    console_print(botw, 1, 1, " Not a printable character");
                 }
                 redraw_edit_help = TRUE;
             }
             else if( c == 'c' ) {
                 console_clear(botw);
-                console_print(botw, 1, 1, " input a number between 1 and the number of defined colors");
+                console_print(botw, 1, 1, " Select one of the following colors:");
+                draw_available_colors(botw, 2, 1);
                 int newcolor = wgetch(topw) - '0';
                 if( newcolor > 0 && newcolor <= NUM_COLOR_PAIRS ) {
                     world->chunks[player->chunk_y][player->chunk_x].tiles[player->y][player->x].color = newcolor;
@@ -118,7 +119,7 @@ int main(int argc, char* argv[]) {
                 }
                 else {
                     console_clear(botw);
-                    console_print(botw, 1, 1, " not a number between 1 and the number of defined colors");
+                    console_print(botw, 1, 1, " Not a valid color");
                 }
                 redraw_edit_help = TRUE;
             }
@@ -136,7 +137,7 @@ int main(int argc, char* argv[]) {
                 leave_trail = ! leave_trail;
                 if(leave_trail) {
                     console_clear(botw);
-                    console_print(botw, 1, 1, " leaving a trail of the clipboard");
+                    console_print(botw, 1, 1, " Leaving a trail of the clipboard. Press t to stop");
                 }
                 else {
                     redraw_edit_help = TRUE;
@@ -144,7 +145,7 @@ int main(int argc, char* argv[]) {
             }
             else if( c == 's') {
                 console_clear(botw);
-                console_print(botw, 1, 1, " input a name for the world file and press enter");
+                console_print(botw, 1, 1, " Input a name for the world file and press enter");
                 memset(load_save_name, 0, strlen(load_save_name));
                 int pos = 0;
                 c = wgetch(botw);
@@ -164,12 +165,12 @@ int main(int argc, char* argv[]) {
                 }
                 save_world(world, load_save_name);
                 console_clear(botw);
-                console_print(botw, 1, 1, " saved world");
+                console_print(botw, 1, 1, " Saved world");
                 redraw_edit_help = TRUE;
             }
-            else if( c == 'l') {
+            else if( c == 'o') {
                 console_clear(botw);
-                console_print(botw, 1, 1, " input a name for the world file and press enter");
+                console_print(botw, 1, 1, " Input a name for the world file and press enter");
                 memset(load_save_name, 0, strlen(load_save_name));
                 int pos = 0;
                 c = wgetch(botw);
@@ -190,27 +191,24 @@ int main(int argc, char* argv[]) {
                 World* tmp = load_world(load_save_name);
                 if(tmp == NULL) {
                     console_clear(botw);
-                    console_print(botw, 1, 1, " failed to load world");
+                    console_print(botw, 1, 1, " Failed to load world");
                 }
                 else {
                     world = tmp;
                     console_clear(botw);
-                    console_print(botw, 1, 1, " loaded world");
+                    console_print(botw, 1, 1, " Loaded world");
                 }
                 redraw_edit_help = TRUE;
             }
         }
-        else {
+        else if( game_mode == MODE_PLAY ) {
             if( redraw_edit_help ) {
                 console_clear(botw);
-                console_print(botw, 1, 1, " tab: change play/edit mode | q: quit");
+                console_print(botw, 1, 1, " tab: Change play/edit mode | q: Quit");
                 redraw_edit_help = FALSE;
             }
         }
-
-        if( c == KEY_LEFT  || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN ) {
-            move_player(player, world, &(world->chunks[player->chunk_y][player->chunk_x]), c);
-        }
+        move_player(player, world, &(world->chunks[player->chunk_y][player->chunk_x]), c);
 
         draw_chunk(&(world->chunks[player->chunk_y][player->chunk_x]), topw, 1, 1);
         draw_player(player, topw, player->y, player->x);
