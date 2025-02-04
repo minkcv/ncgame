@@ -1,3 +1,4 @@
+#include "main.h"
 #include "player.h"
 #include "colors.h"
 #include "tiles.h"
@@ -14,7 +15,7 @@ Player* create_player() {
     return p;
 }
 
-bool can_move(char tile) {
+bool can_move(short game_mode, char tile) {
     if(game_mode == MODE_MENU)
         return FALSE;
     else if(game_mode == MODE_EDIT)
@@ -36,10 +37,10 @@ void draw_player(Player* player, WINDOW* window, int y, int x) {
     wattroff(window, COLOR_PAIR(player->color_pair));
 }
 
-void move_player(Player* player, World* world, Chunk* chk, int key) {
+void move_player(short game_mode, Player* player, World* world, Chunk* chk, int key) {
     if(key == KEY_LEFT || key == 'h') {
         if(player->x > 0) {
-            if(can_move(chk->tiles[player->y][player->x - 1].ch)) {
+            if(can_move(game_mode, chk->tiles[player->y][player->x - 1].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;
                 player->x--;
             }
@@ -52,7 +53,7 @@ void move_player(Player* player, World* world, Chunk* chk, int key) {
     }
     else if (key == KEY_RIGHT || key == 'l') {
         if(player->x < CHUNK_WIDTH - 1) {
-            if(can_move(chk->tiles[player->y][player->x + 1].ch)) {
+            if(can_move(game_mode, chk->tiles[player->y][player->x + 1].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;
                 player->x++;
             }
@@ -65,7 +66,7 @@ void move_player(Player* player, World* world, Chunk* chk, int key) {
     }
     else if (key == KEY_UP || key == 'k') {
         if(player->y > 0) {
-            if(can_move(chk->tiles[player->y - 1][player->x].ch)) {
+            if(can_move(game_mode, chk->tiles[player->y - 1][player->x].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;
                 player->y--;
             }
@@ -78,7 +79,7 @@ void move_player(Player* player, World* world, Chunk* chk, int key) {
     }
     else if (key == KEY_DOWN || key == 'j') {
         if(player->y < CHUNK_HEIGHT - 1) {
-            if(can_move(chk->tiles[player->y + 1][player->x].ch)) {
+            if(can_move(game_mode, chk->tiles[player->y + 1][player->x].ch)) {
                 chk->tiles[player->y][player->x].redraw = TRUE;
                 player->y++;
             }

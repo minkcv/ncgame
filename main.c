@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 
     World* world = create_world(2, 2);
 
-    game_mode = MODE_PLAY;
+    short game_mode = MODE_PLAY;
 
     keypad(topw, TRUE);
     int c = 0;
@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
                 redraw_edit_help = FALSE;
             }
         }
-        move_player(player, world, &(world->chunks[player->chunk_y][player->chunk_x]), c);
+        move_player(game_mode, player, world, &(world->chunks[player->chunk_y][player->chunk_x]), c);
 
         draw_chunk(&(world->chunks[player->chunk_y][player->chunk_x]), topw, 1, 1);
         draw_player(player, topw, player->y, player->x);

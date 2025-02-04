@@ -1,7 +1,6 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
-#include "main.h"
 #include "chunk.h"
 #include "world.h"
 #include <ncurses.h>
@@ -21,10 +20,10 @@ typedef struct Player {
 
 Player* create_player();
 
-bool can_move(char tile);
+bool can_move(short game_mode, char tile);
 
 void draw_player(Player* player, WINDOW* window, int y, int x);
 
-void move_player(Player* player, World* world, Chunk* chk, int key);
+void move_player(short game_mode, Player* player, World* world, Chunk* chk, int key);
 
 #endif
